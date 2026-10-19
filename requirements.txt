@@ -1,0 +1,9 @@
+tensorflow==2.18.1
+pandas
+numpy
+matplotlib
+scikit-learn
+sklearn-pandas
+tf2onnx
+onnx
+joblib
