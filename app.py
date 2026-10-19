@@ -36,13 +36,11 @@ st.markdown("**IBM Z Datathon 2026** | Sequence Windowing & Feature Attribution 
 st.divider()
 
 # --- 2. SIDEBAR ---
-st.sidebar.header("🎛️ Build a 7-Step Sequence")
-st.sidebar.info("""
-**How it works:** 
-The LSTM model analyzes a sequence of 7 transactions. 
-By default, we set the first 6 to normal amounts (~$5k) and the 7th to a massive spike ($8,900). 
-Click 'Run' to see how the AI reacts.
-""")
+st.sidebar.info(
+    "How it works: The LSTM model analyzes a sequence of 7 transactions. "
+    "By default, the first 6 are set to normal amounts ($5,000) and the 7th is a massive spike ($8,900). "
+    "Click 'Run' to see how the AI reacts."
+)
 
 seq_amounts = []
 for i in range(1, 8):
