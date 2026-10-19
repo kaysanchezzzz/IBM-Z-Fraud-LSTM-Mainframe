@@ -5,32 +5,33 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="LSTM Fraud Engine", page_icon="🧠", layout="wide")
 
-# --- 1. BULLETPROOF FONT & UI UPGRADE ---
+# --- 1. THE OLD FONT + NEW INTERFACE ---
 custom_css = """
 <style>
-    /* Use a clean, modern system font stack that ALWAYS loads */
-    html, body, [class*="css"], .stMarkdown, .stText, p, h1, h2, h3, h4, h5, h6, span, div, li {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    /* Bring back the clean Inter font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    html, body, [class*="css"], .stMarkdown, p, h1, h2, h3, span, div {
+        font-family: 'Inter', sans-serif !important;
     }
     
-    h1 { font-weight: 800 !important; letter-spacing: -1.5px; }
-    h2 { font-weight: 700 !important; letter-spacing: -1px; }
+    h1 { font-weight: 700 !important; letter-spacing: -1px; }
+    h2 { font-weight: 700 !important; }
     
-    /* Style the metric values to look futuristic */
+    /* Keep the futuristic metric */
     [data-testid="stMetricValue"] {
-        font-family: "Segoe UI", Roboto, sans-serif !important;
+        font-family: 'Inter', sans-serif !important;
         font-size: 3.5rem !important;
         font-weight: 800 !important;
         color: #00FFAA !important; 
     }
 
-    /* Make the audit trail cards look like enterprise reports */
+    /* Keep the enterprise audit cards */
     .audit-card {
         background-color: #1E1E1E;
         border-left: 5px solid #FF9800;
         padding: 15px;
         border-radius: 5px;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
     .audit-title {
         font-size: 1.1rem;
@@ -159,7 +160,29 @@ if analyze_btn:
     st.subheader("3. Feature Attribution: Exactly why did the AI flag this?")
     
     if reasons:
-        # Render the custom HTML cards for the audit trail
+        # --- THE MISSING GRAPH IS BACK ---
+        r_names = [r[0] for r in reasons]
+        r_values = [r[1] for r in reasons]
+        
+        fig2 = go.Figure(go.Bar(
+            x=r_values,
+            y=r_names,
+            orientation='h',
+            marker_color=color,
+            text=[f"+{v*100:.1f}%" for v in r_values],
+            textposition='auto'
+        ))
+        fig2.update_layout(
+            title="Risk Contribution Breakdown", 
+            xaxis_title="Score Contribution (%)", 
+            height=250, 
+            xaxis_range=[0, 0.8], 
+            margin=dict(l=20, r=20, t=40, b=20)
+        )
+        st.plotly_chart(fig2, use_container_width=True)
+        
+        # The beautiful new audit cards
+        st.markdown("#### Detailed Audit Trail")
         for name, val, desc in reasons:
             st.markdown(f"""
             <div class="audit-card">
