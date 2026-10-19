@@ -19,6 +19,18 @@ I trained a 2-layer Long Short-Term Memory (LSTM) neural network using TensorFlo
 
 ---
 
+### 🚀 Live Interactive Demo: Inside the LSTM
+I built a fully interactive Streamlit dashboard to visualize how the LSTM processes sequence windows and calculates risk. 
+
+👉 **[Click here to launch the Live ML Visualizer](https://ibm-z-fraud-lstm-mainframe-6xo9rvtnfrstgnlduusnlw.streamlit.app/)**
+
+**Features of the Live Demo:**
+1. **Sequence Windowing:** Adjust 7 transactions via sliders and watch the model process the 3D tensor `(1, 7, 1)`.
+2. **Risk Engine:** Translates the AI's probability score into automated enterprise actions (e.g., "Immediate account freeze").
+3. **Explainable AI (XAI):** A dynamic "Feature Attribution" chart that breaks down *exactly* which rules contributed to the fraud score (e.g., "Velocity Spike: +50%").
+
+---
+
 ### 🏗️ The ML Pipeline
 1. **Data Ingestion:** Loaded 245,864 historical credit card transactions.
 2. **Feature Engineering:** Custom encoders for time, amount (log-scaled), and merchant locations. 
