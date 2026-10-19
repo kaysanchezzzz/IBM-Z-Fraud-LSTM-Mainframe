@@ -5,7 +5,43 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="LSTM Fraud Engine", page_icon="🧠", layout="wide")
 
-# --- NO CUSTOM CSS. PURE STREAMLIT DEFAULT FONT ---
+# --- 1. THE OLD FONT + NEW INTERFACE ---
+custom_css = """
+<style>
+    /* Bring back the clean Inter font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    html, body, [class*="css"], .stMarkdown, p, h1, h2, h3, span, div {
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    h1 { font-weight: 700 !important; letter-spacing: -1px; }
+    h2 { font-weight: 700 !important; }
+    
+    /* Keep the futuristic metric */
+    [data-testid="stMetricValue"] {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 3.5rem !important;
+        font-weight: 800 !important;
+        color: #00FFAA !important; 
+    }
+
+    /* Keep the enterprise audit cards */
+    .audit-card {
+        background-color: #1E1E1E;
+        border-left: 5px solid #FF9800;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+    .audit-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #FF9800;
+        margin-bottom: 5px;
+    }
+</style>
+"""
+st.markdown(custom_css, unsafe_allow_html=True)
 
 st.title("🧠 Inside the LSTM: Enterprise Fraud Engine")
 st.markdown("**IBM Z Datathon 2026** | Sequence Windowing & Feature Attribution on IBM LinuxONE.")
@@ -124,6 +160,7 @@ if analyze_btn:
     st.subheader("3. Feature Attribution: Exactly why did the AI flag this?")
     
     if reasons:
+        # --- THE MISSING GRAPH IS BACK ---
         r_names = [r[0] for r in reasons]
         r_values = [r[1] for r in reasons]
         
@@ -144,11 +181,15 @@ if analyze_btn:
         )
         st.plotly_chart(fig2, use_container_width=True)
         
+        # The beautiful new audit cards
         st.markdown("#### Detailed Audit Trail")
         for name, val, desc in reasons:
-            st.markdown(f"**{name} (+{val*100:.1f}%)**")
-            st.write(desc)
-            st.divider()
+            st.markdown(f"""
+            <div class="audit-card">
+                <div class="audit-title">{name} (+{val*100:.1f}%)</div>
+                <div style="font-size: 1rem; color: #E2E8F0;">{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
     else:
         st.write("No anomalous features detected. All transactions align with the historical baseline. The model auto-approved this sequence.")
 
