@@ -2,6 +2,7 @@
 **IBM Z Datathon 2026 — Machine Learning Research**
 Predictive AI: Credit Card Fraud Detection using 2-Layer LSTM on IBM LinuxONE.
 
+[![Live ML Visualizer](https://img.shields.io/badge/🚀_Live_ML_Visualizer-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://ibm-z-fraud-lstm-mainframe-6xo9rvtnfrstgnlduusnlw.streamlit.app/)
 [![Main Project](https://img.shields.io/badge/Main_Project-Auditor's_AI-052FAD?style=for-the-badge&logo=ibm&logoColor=white)](https://github.com/kaysanchezzzz/IBM-Z-Datathon-Auditor-AI)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)]()
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.18-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)]()
