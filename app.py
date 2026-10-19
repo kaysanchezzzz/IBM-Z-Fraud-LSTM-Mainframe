@@ -5,28 +5,38 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="LSTM Fraud Engine", page_icon="🧠", layout="wide")
 
-# --- 1. FORCE CUSTOM FONT (Targeting Streamlit's hidden classes) ---
+# --- 1. BULLETPROOF FONT & UI UPGRADE ---
 custom_css = """
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap');
-    
-    /* Force the font on EVERY Streamlit element */
+    /* Use a clean, modern system font stack that ALWAYS loads */
     html, body, [class*="css"], .stMarkdown, .stText, p, h1, h2, h3, h4, h5, h6, span, div, li {
-        font-family: 'Space Grotesk', sans-serif !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
     }
     
-    /* Make the headers pop */
-    h1 {
-        font-weight: 700 !important;
-        letter-spacing: -1px;
-    }
+    h1 { font-weight: 800 !important; letter-spacing: -1.5px; }
+    h2 { font-weight: 700 !important; letter-spacing: -1px; }
     
     /* Style the metric values to look futuristic */
     [data-testid="stMetricValue"] {
-        font-family: 'Space Grotesk', sans-serif !important;
-        font-size: 3rem !important;
-        font-weight: 700 !important;
-        color: #00FFAA !important; /* Neon green */
+        font-family: "Segoe UI", Roboto, sans-serif !important;
+        font-size: 3.5rem !important;
+        font-weight: 800 !important;
+        color: #00FFAA !important; 
+    }
+
+    /* Make the audit trail cards look like enterprise reports */
+    .audit-card {
+        background-color: #1E1E1E;
+        border-left: 5px solid #FF9800;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    .audit-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #FF9800;
+        margin-bottom: 5px;
     }
 </style>
 """
@@ -63,7 +73,6 @@ def analyze_sequence(amounts):
     reasons = []
     score = 0.0
     
-    # Rule 1: Velocity / Spike
     if spike_ratio > 5:
         score += 0.50
         reasons.append(("Extreme Velocity Spike", 0.50, 
@@ -73,7 +82,6 @@ def analyze_sequence(amounts):
         reasons.append(("Moderate Velocity Spike", 0.20, 
             f"The final transaction is {spike_ratio:.2f}x larger than the historical average. This is a mild deviation from normal behavior."))
         
-    # Rule 2: Absolute Threshold
     if current_amt > 5000:
         score += 0.40
         reasons.append(("High Absolute Amount", 0.40, 
@@ -83,7 +91,6 @@ def analyze_sequence(amounts):
         reasons.append(("Elevated Amount", 0.10, 
             f"The transaction amount is above the typical daily baseline for retail users."))
         
-    # Rule 3: Sequence Volume
     total_vol = sum(amounts)
     if total_vol > 30000:
         score += 0.10
@@ -92,7 +99,6 @@ def analyze_sequence(amounts):
         
     score = min(score, 0.99)
     
-    # FIXED: Changed > to >= so exactly 50% triggers the correct label
     if score >= 0.85: 
         risk, action, color = "CRITICAL", "Immediate account freeze & forensic audit required.", "red"
     elif score >= 0.50: 
@@ -109,10 +115,7 @@ def analyze_sequence(amounts):
 if analyze_btn:
     score, risk, action, color, reasons, spike, past_avg = analyze_sequence(seq_amounts)
     
-    # SECTION 1: VISUALS
     st.subheader("1. Sequence Windowing (What the LSTM sees)")
-    st.write("An LSTM processes data in 3D tensors `(batch_size, timesteps, features)`. Below is the 7-step sequence. The green bars are history; the red bar is the current transaction the model must predict.")
-    
     col1, col2 = st.columns([2, 1])
     with col1:
         colors = ['#4CAF50'] * 6 + ['#F44336']
@@ -129,11 +132,9 @@ if analyze_btn:
     with col2:
         st.write("**Raw Tensor:**")
         st.code(f"Shape: (1, 7, 1)\n\n{np.array(seq_amounts).reshape(1, 7, 1)}", language="python")
-        st.caption("The LSTM passes this tensor through 2 hidden layers (200 units each) to calculate the final probability.")
 
     st.divider()
 
-    # SECTION 2: THE VERDICT
     st.subheader("2. The AI Verdict & Risk Engine")
     col3, col4 = st.columns([1, 1])
     
@@ -151,39 +152,23 @@ if analyze_btn:
         st.info(action)
         
         st.markdown("**Audit Observation:**")
-        # FIXED: Removed the $ signs that were causing italics
-        st.write(f"The sequence average for the first 6 transactions was **{past_avg:,.2f} USD**. The 7th transaction jumped to **{seq_amounts[-1]:,.2f} USD**.")
+        st.write(f"The sequence average was **{past_avg:,.2f} USD**. The 7th transaction jumped to **{seq_amounts[-1]:,.2f} USD**.")
 
     st.divider()
 
-    # SECTION 3: DETAILED EXPLANATION
     st.subheader("3. Feature Attribution: Exactly why did the AI flag this?")
-    st.write("To prevent 'Black Box' AI, we break down the probability score. Each rule below contributed to the final score:")
     
     if reasons:
-        r_names = [r[0] for r in reasons]
-        r_values = [r[1] for r in reasons]
-        
-        fig2 = go.Figure(go.Bar(
-            x=r_values,
-            y=r_names,
-            orientation='h',
-            marker_color=color,
-            text=[f"+{v*100:.1f}%" for v in r_values],
-            textposition='auto'
-        ))
-        fig2.update_layout(title="Risk Contribution Breakdown", xaxis_title="Score Contribution (%)", height=250, xaxis_range=[0, 0.8], margin=dict(l=20, r=20, t=40, b=20))
-        st.plotly_chart(fig2, use_container_width=True)
-        
-        st.markdown("#### Detailed Audit Trail")
+        # Render the custom HTML cards for the audit trail
         for name, val, desc in reasons:
-            st.markdown(f"**{name} (+{val*100:.1f}%)**")
-            st.write(desc)
-            st.divider()
+            st.markdown(f"""
+            <div class="audit-card">
+                <div class="audit-title">{name} (+{val*100:.1f}%)</div>
+                <div style="font-size: 1rem; color: #E2E8F0;">{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
     else:
         st.write("No anomalous features detected. All transactions align with the historical baseline. The model auto-approved this sequence.")
 
 else:
     st.info("👈 Adjust the sequence in the sidebar and click 'Run LSTM Analysis' to see the model in action.")
-
-st.caption("Built with TensorFlow, Streamlit, and IBM LinuxONE (s390x) architecture.")
